@@ -2,7 +2,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
-import BaseRouter from './routes';
+import v1Routes from './routes/v1';
 
 // Init express
 const app = express();
@@ -42,7 +42,7 @@ app.get('/', (req: Request, res: Response) => {
 /**
  * Registering base API routes
  */
-app.use('/ai', BaseRouter);
+app.use('/ai/v1', v1Routes);
 
 /**
  * Health check endpoints
