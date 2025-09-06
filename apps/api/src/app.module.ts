@@ -1,9 +1,9 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TerminusModule } from '@nestjs/terminus';
+// import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { TerminusModule } from '@nestjs/terminus';
 // import { BullModule } from '@nestjs/bull';
 // import { CacheModule } from '@nestjs/cache-manager';
 // import { ScheduleModule } from '@nestjs/schedule';
@@ -11,8 +11,9 @@ import { TerminusModule } from '@nestjs/terminus';
 
 // Configuration
 import databaseConfig from './config/database.config';
-// import { authConfig } from './config/auth.config';
 import appConfig from './config/app.config';
+import externalApi from './config/external-api.config';
+// import { authConfig } from './config/auth.config';
 // import { redisConfig } from './config/redis.config';
 
 // Middleware
@@ -20,15 +21,16 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
 
 // Guards & Interceptors
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 // import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 // import { RolesGuard } from './common/guards/roles.guard';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 // import { CacheInterceptor } from './common/interceptors/cache.interceptor';
 
 // Feature Modules
+import { HealthModule } from './modules/health/health.module';
+import { CurrencyModule } from './modules/currency/currency.module';
 // import { AuthModule } from './modules/auth/auth.module';
 // import { UsersModule } from './modules/users/users.module';
-import { HealthModule } from './modules/health/health.module';
 // import { AdminModule } from './modules/admin/admin.module';
 
 // Entities (for TypeORM auto-loading)
@@ -42,7 +44,7 @@ import { HealthModule } from './modules/health/health.module';
       isGlobal: true,
       cache: true,
       expandVariables: true,
-      load: [appConfig, databaseConfig /* authConfig, redisConfig */],
+      load: [appConfig, databaseConfig, externalApi /* authConfig, redisConfig */],
       envFilePath: ['.env.local', '.env'],
     }),
 
@@ -139,36 +141,37 @@ import { HealthModule } from './modules/health/health.module';
     TerminusModule,
 
     // Feature Modules
+    HealthModule,
+    CurrencyModule,
     // AuthModule,
     // UsersModule,
-    HealthModule,
     // AdminModule,
   ],
   controllers: [],
-  providers: [
-    // Global Guards
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-    // Global Interceptors
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: CacheInterceptor,
-    // },
-  ],
+  // providers: [
+  // Global Guards
+  // {
+  //   provide: APP_GUARD,
+  //   useClass: ThrottlerGuard,
+  // },
+  // {
+  //   provide: APP_GUARD,
+  //   useClass: JwtAuthGuard,
+  // },
+  // {
+  //   provide: APP_GUARD,
+  //   useClass: RolesGuard,
+  // },
+  // Global Interceptors
+  // {
+  //   provide: APP_INTERCEPTOR,
+  //   useClass: LoggingInterceptor,
+  // },
+  // {
+  //   provide: APP_INTERCEPTOR,
+  //   useClass: CacheInterceptor,
+  // },
+  // ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -176,7 +179,12 @@ export class AppModule implements NestModule {
       .apply(CorrelationIdMiddleware)
       .forRoutes('*path')
       .apply(LoggerMiddleware)
-      .exclude('/*version/health', '/*version/health/*path', '/*version/docs', '/*version/docs/*path')
+      .exclude(
+        '/*version/health',
+        '/*version/health/*path',
+        '/*version/docs',
+        '/*version/docs/*path',
+      )
       .forRoutes('*path');
   }
 }
