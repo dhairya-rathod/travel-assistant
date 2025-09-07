@@ -28,6 +28,7 @@ playwright-report/
 .vercel
 
 # Build Outputs
+ecosystem.config.js
 .next/
 out/
 build
