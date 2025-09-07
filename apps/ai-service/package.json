@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon",
-    "start": "node -r module-alias/register ./dist --env=developement",
+    "start": "node ./dist",
     "build": "node build.js",
     "commit-a": "git add . && git cz",
     "commit": "git cz",

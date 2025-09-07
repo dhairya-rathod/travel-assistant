@@ -33,7 +33,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       path: request.url,
       method: request.method,
       message,
-      ...(process.env.NODE_ENV === 'development' && {
+      ...(process.env.NODE_ENV_API === 'development' && {
         stack: exception instanceof Error ? exception.stack : undefined,
       }),
     };

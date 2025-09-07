@@ -19,7 +19,7 @@ app.use(cookieParser());
  * Show routes details in dev output in console during development
  * else, show routes details in tiny form
  */
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV_AI === 'production') {
   app.use(morgan('tiny'));
 } else {
   app.use(morgan('dev'));
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'production') {
 /**
  * Helmet for basic security in production
  */
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV_AI === 'production') {
   app.use(helmet());
 }
 

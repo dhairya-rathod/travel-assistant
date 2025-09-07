@@ -85,7 +85,7 @@ export class ResponseInterceptor<T>
         };
 
         // Log successful requests in development
-        // if (process.env.NODE_ENV === 'development') {
+        // if (process.env.NODE_ENV_API === 'development') {
         //   this.logger.log(
         //     `LOG - ${request.method} ${request.url} - ${response.statusCode} - ${processingTime}ms`,
         //   );

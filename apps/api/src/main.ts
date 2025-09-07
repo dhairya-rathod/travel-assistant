@@ -23,7 +23,7 @@ async function bootstrap() {
   // Get configuration service
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
-  const environment = configService.get<string>('NODE_ENV') || 'development';
+  const environment = configService.get<string>('NODE_ENV_API') || 'development';
   const apiPrefix = configService.get<string>('API_PREFIX') || 'api';
 
   // Trust proxy for proper IP forwarding (important for rate limiting and logging)
