@@ -44,8 +44,13 @@ import { CurrencyModule } from './modules/currency/currency.module';
       isGlobal: true,
       cache: true,
       expandVariables: true,
-      load: [appConfig, databaseConfig, externalApi /* authConfig, redisConfig */],
-      envFilePath: ['.env.local', '.env'],
+      load: [
+        appConfig,
+        databaseConfig,
+        externalApi /* authConfig, redisConfig */,
+      ],
+      envFilePath:
+        process.env.NODE_ENV_API !== 'production' ? ['.env.local'] : [],
     }),
 
     // Database Configuration with TypeORM
