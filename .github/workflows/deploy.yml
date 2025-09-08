@@ -94,7 +94,9 @@ jobs:
             $PNPM_PATH run build
 
             # Restart services with PM2
-            pm2 restart all || pm2 start ecosystem.config.js
+            pm2 stop all || true              # Stop all processes, '|| true' ensures script continues even if no processes exist
+            pm2 delete all || true            # Delete all processes from PM2's list
+            pm2 start ecosystem.config.js
 
             # Save PM2 process list
             pm2 save
