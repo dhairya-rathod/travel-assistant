@@ -81,7 +81,7 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           port: 22
           script: |
-            cd /travel-assistant
+            cd travel-assistant
             git pull origin master
             pnpm install
             pnpm run build
