@@ -29,6 +29,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 // Feature Modules
 import { HealthModule } from './modules/health/health.module';
 import { CurrencyModule } from './modules/currency/currency.module';
+import { WeatherModule } from './modules/weather/weather.module';
 // import { AuthModule } from './modules/auth/auth.module';
 // import { UsersModule } from './modules/users/users.module';
 // import { AdminModule } from './modules/admin/admin.module';
@@ -148,6 +149,7 @@ import { CurrencyModule } from './modules/currency/currency.module';
     // Feature Modules
     HealthModule,
     CurrencyModule,
+    WeatherModule
     // AuthModule,
     // UsersModule,
     // AdminModule,

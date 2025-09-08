@@ -1,22 +1,26 @@
+import axios from 'axios';
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 
 // Weather Tool
 export const weatherTool = tool(
-  async ({ city, date }) => {
-    // TODO: Call OpenWeatherMap API or WeatherAPI
-    return JSON.stringify({
-      city,
-      date,
-      forecast: 'Sunny, 25°C',
-    });
+  async ({ city }) => {
+    const response = await axios.get(
+      `${process.env.API_URL_V1}/weather/forecast`,
+      {
+        params: { city },
+      },
+    );
+    if (response.status !== 200) {
+      throw new Error(`Weather forecast failed with status ${response.status}`);
+    }
+    return JSON.stringify(response.data.data);
   },
   {
     name: 'weather-forecast',
-    description: 'Get weather forecast for a city on given date',
+    description: 'Get weather forecast of 5 days for a given city',
     schema: z.object({
       city: z.string(),
-      date: z.string(),
     }),
   },
 );
