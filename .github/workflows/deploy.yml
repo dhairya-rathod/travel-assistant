@@ -80,11 +80,18 @@ jobs:
           username: ${{ secrets.AZURE_VM_USERNAME }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           port: 22
+          script_stop: true
           script: |
+            set -euo pipefail  # Strict error handling
+
             cd travel-assistant
             git pull origin master
-            pnpm install
-            pnpm run build
+
+            # Define the path once
+            PNPM_PATH="/home/bytecrate/.nvm/versions/node/v20.19.5/bin/pnpm"
+
+            $PNPM_PATH install
+            $PNPM_PATH run build
 
             # Restart services with PM2
             pm2 restart all || pm2 start ecosystem.config.js
