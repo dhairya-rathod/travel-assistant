@@ -1,14 +1,7 @@
-import { Link } from 'links/entities/link.entity';
+import { WeatherRequestDto } from './weather/dto/weather-request.dto';
 
-import { CreateLinkDto } from 'links/dto/create-link.dto';
-import { UpdateLinkDto } from 'links/dto/update-link.dto';
-
-export const links = {
+export const weather = {
   dto: {
-    CreateLinkDto,
-    UpdateLinkDto,
-  },
-  entities: {
-    Link,
+    WeatherRequestDto,
   },
 };

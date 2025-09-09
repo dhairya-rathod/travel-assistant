@@ -35,6 +35,9 @@ importers:
       '@langchain/openai':
         specifier: ^0.6.11
         version: 0.6.11(@langchain/core@0.3.73)
+      '@repo/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       axios:
         specifier: ^1.11.0
         version: 1.11.0
@@ -283,7 +286,13 @@ importers:
     dependencies:
       '@nestjs/mapped-types':
         specifier: '*'
-        version: 2.0.5(@nestjs/common@10.4.15)(reflect-metadata@0.2.2)
+        version: 2.0.5(@nestjs/common@10.4.15)(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
+      class-validator:
+        specifier: ^0.14.2
+        version: 0.14.2
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -1842,7 +1851,7 @@ packages:
       - webpack-cli
     dev: true
 
-  /@nestjs/common@10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2):
+  /@nestjs/common@10.4.15(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2):
     resolution: {integrity: sha512-vaLg1ZgwhG29BuLDxPA9OAcIlgqzp9/N8iG0wGapyUNTf4IY4O6zAHgN6QalwLhFxq7nOI021vdRojR1oF3bqg==}
     peerDependencies:
       class-transformer: '*'
@@ -1855,6 +1864,8 @@ packages:
       class-validator:
         optional: true
     dependencies:
+      class-transformer: 0.5.1
+      class-validator: 0.14.2
       iterare: 1.2.1
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
@@ -1930,7 +1941,7 @@ packages:
       tslib: 2.8.1
       uid: 2.0.2
 
-  /@nestjs/mapped-types@2.0.5(@nestjs/common@10.4.15)(reflect-metadata@0.2.2):
+  /@nestjs/mapped-types@2.0.5(@nestjs/common@10.4.15)(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2):
     resolution: {integrity: sha512-bSJv4pd6EY99NX9CjBIyn4TVDoSit82DUZlL4I3bqNfy5Gt+gXTa86i3I/i0iIV9P4hntcGM5GyO+FhZAhxtyg==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1943,7 +1954,9 @@ packages:
       class-validator:
         optional: true
     dependencies:
-      '@nestjs/common': 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/common': 10.4.15(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      class-transformer: 0.5.1
+      class-validator: 0.14.2
       reflect-metadata: 0.2.2
     dev: false
 

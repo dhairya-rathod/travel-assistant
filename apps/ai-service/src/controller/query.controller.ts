@@ -2,10 +2,33 @@ import { Request, Response } from 'express';
 import { TravelAgent } from '../agent/travelAgent';
 
 export class QueryController {
+  private readonly agents: Map<string, TravelAgent>;
+
+  constructor() {
+    this.agents = new Map();
+    this.handleQuery = this.handleQuery.bind(this);
+  }
+
+  private getOrCreateAgent(sessionId: string): TravelAgent {
+    if (!this.agents.has(sessionId)) {
+      this.agents.set(sessionId, new TravelAgent(sessionId));
+    }
+    return this.agents.get(sessionId)!;
+  }
+
+  private cleanupOldSessions() {
+    const ONE_HOUR = 60 * 60 * 1000;
+    for (const [sessionId, agent] of this.agents.entries()) {
+      if (Date.now() - agent.lastAccessTime > ONE_HOUR) {
+        this.agents.delete(sessionId);
+      }
+    }
+  }
+
   public async handleQuery(req: Request, res: Response): Promise<void> {
     try {
       const requestData = req.body;
-      const userInput = requestData.input;
+      const { input: userInput, sessionId, newConversation } = requestData;
 
       if (!userInput || typeof userInput !== 'string') {
         res.status(400).json({
@@ -14,8 +37,24 @@ export class QueryController {
         });
         return;
       }
-      const agentExecutor = new TravelAgent();
+
+      if (!sessionId) {
+        res.status(400).json({
+          status: 'error',
+          message: 'Session ID is required',
+        });
+        return;
+      }
+
+      const agentExecutor = this.getOrCreateAgent(sessionId);
+
+      if (newConversation) {
+        agentExecutor.clearConversation();
+      }
+
       const llmResponse = await agentExecutor.processMessage(userInput);
+
+      this.cleanupOldSessions();
 
       if (llmResponse.error) {
         res.status(500).json({
@@ -28,6 +67,7 @@ export class QueryController {
       res.status(200).json({
         status: 'success',
         data: llmResponse,
+        sessionId,
       });
     } catch (error) {
       console.log('Error handling query:', JSON.stringify(error));

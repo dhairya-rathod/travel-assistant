@@ -11,7 +11,7 @@ import {
 } from '@langchain/core/messages';
 import { ToolNode } from '@langchain/langgraph/prebuilt';
 import { END } from '@langchain/langgraph';
-import { START, StateGraph } from '@langchain/langgraph';
+import { START, StateGraph, MemorySaver } from '@langchain/langgraph';
 import { Annotation } from '@langchain/langgraph';
 import type { Runnable, RunnableConfig } from '@langchain/core/runnables';
 import { StructuredTool as Tool } from '@langchain/core/tools';
@@ -61,8 +61,13 @@ export class TravelAgent {
   >;
   private readonly toolNode: ToolNode<AgentStateType>;
   private readonly workflow: StateGraph<AgentStateType>;
+  private sessionId: string;
+  private conversationHistory: BaseMessage[] = [];
+  public lastAccessTime: number;
 
-  constructor(config: Partial<TravelAgentConfig> = {}) {
+  constructor(sessionId: string, config: Partial<TravelAgentConfig> = {}) {
+    this.sessionId = sessionId;
+    this.lastAccessTime = Date.now();
     this.AgentState = Annotation.Root({
       messages: Annotation<BaseMessage[]>({
         reducer: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
@@ -99,6 +104,12 @@ export class TravelAgent {
     } catch (error) {
       throw new Error(
         `Failed to initialize language model: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    if (this.config.systemPrompt) {
+      this.conversationHistory.push(
+        new SystemMessage(this.config.systemPrompt),
       );
     }
 
@@ -174,20 +185,34 @@ export class TravelAgent {
     });
   }
 
+  public clearConversation(): void {
+    this.conversationHistory = [];
+    if (this.config.systemPrompt) {
+      this.conversationHistory.push(
+        new SystemMessage(this.config.systemPrompt),
+      );
+    }
+  }
+
   public async processMessage(message: string): Promise<TravelAgentResponse> {
     try {
-      const app = this.workflow.compile();
+      this.lastAccessTime = Date.now();
+      const checkpointer = new MemorySaver();
+
+      const config = {
+        configurable: {
+          thread_id: this.sessionId,
+        },
+      };
+
+      const app = this.workflow.compile({ checkpointer }).withConfig(config);
+
+      this.conversationHistory.push(new HumanMessage(message));
       const inputs = {
-        messages: [
-          ...(this.config.systemPrompt
-            ? [new SystemMessage(this.config.systemPrompt)]
-            : []),
-          new HumanMessage(message),
-        ],
+        messages: this.conversationHistory,
       };
 
       let finalResult: BaseMessage | undefined;
-      let conversationHistory: BaseMessage[] = [];
 
       for await (const state of await app.stream(inputs)) {
         this.logOutput(state);
@@ -202,7 +227,7 @@ export class TravelAgent {
           }
           if (modelOutput.messages?.length) {
             finalResult = modelOutput.messages[0];
-            conversationHistory = conversationHistory.concat(
+            this.conversationHistory = this.conversationHistory.concat(
               modelOutput.messages,
             );
           }
@@ -215,7 +240,7 @@ export class TravelAgent {
 
       return {
         content: String(finalResult.content),
-        conversationHistory,
+        conversationHistory: this.conversationHistory,
       };
     } catch (error) {
       console.error('Error processing message:', error);

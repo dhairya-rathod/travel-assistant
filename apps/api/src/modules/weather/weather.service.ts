@@ -2,52 +2,61 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import {
-  AccuWeatherLocationResponse,
-  AccuWeatherForecastResponse,
-} from './weather.type';
+  CurrentWeather,
+  WeatherForecast,
+} from '@repo/api/weather/types/index.types';
 
 @Injectable()
 export class WeatherService {
   private readonly baseUrl: string;
   private readonly apiKey: string;
-  // /locations/v1/cities/search?apikey=PKg13CjAfN6zbmKE2V7Avm2zLXkkmNWm&q=vadodara
+
   constructor(private configService: ConfigService) {
     this.baseUrl = this.configService.get<string>(
-      'externalApi.accuWeatherApiUrl',
+      'externalApi.openWeatherApiUrl',
     );
     this.apiKey = this.configService.get<string>(
-      'externalApi.accuWeatherApiKey',
+      'externalApi.openWeatherApiKey',
     );
   }
 
-  async getWeather(city: string): Promise<AccuWeatherForecastResponse> {
+  async getCurrentWeather(city: string): Promise<CurrentWeather> {
     try {
-      const locationResponse = await axios.get<AccuWeatherLocationResponse[]>(
-        `${this.baseUrl}/locations/v1/cities/search`,
+      const currentWeatherResponse = await axios.get<CurrentWeather>(
+        `${this.baseUrl}/weather`,
         {
           params: {
-            apikey: this.apiKey,
             q: city,
+            units: 'metric',
+            appid: this.apiKey,
           },
         },
       );
 
-      if (!locationResponse.data[0].Key) {
-        throw new HttpException('City not found', 404);
-      }
+      return currentWeatherResponse.data;
+    } catch (error) {
+      const axiosError = error as { response?: { status: number } };
+      throw new HttpException(
+        'Failed to get weather data',
+        axiosError.response?.status || 500,
+      );
+    }
+  }
 
-      const weatherForcastResponse =
-        await axios.get<AccuWeatherForecastResponse>(
-          `${this.baseUrl}/forecasts/v1/daily/5day/${locationResponse.data[0].Key}`,
-          {
-            params: {
-              apikey: this.apiKey,
-              metric: true,
-            },
+  async getWeatherForecast(city: string): Promise<WeatherForecast> {
+    try {
+      const weatherForecastResponse = await axios.get<WeatherForecast>(
+        `${this.baseUrl}/forecast`,
+        {
+          params: {
+            q: city,
+            units: 'metric',
+            appid: this.apiKey,
           },
-        );
+        },
+      );
 
-      return weatherForcastResponse.data;
+      return weatherForecastResponse.data;
     } catch (error) {
       const axiosError = error as { response?: { status: number } };
       throw new HttpException(
