@@ -7,4 +7,7 @@ export default registerAs('externalApi', () => ({
   accuWeatherApiUrl:
     process.env.ACCUWEATHER_BASE_URL || 'http://dataservice.accuweather.com',
   accuWeatherApiKey: process.env.ACCUWEATHER_API_KEY || '',
+  openWeatherApiUrl:
+    process.env.OPENWEATHER_BASE_URL || 'https://api.openweathermap.org/data/2.5',
+  openWeatherApiKey: process.env.OPENWEATHER_API_KEY || '',
 }));
